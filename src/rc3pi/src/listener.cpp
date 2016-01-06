@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 //#include "std_msgs/String.h"
 #include "geometry_msgs/TransformStamped.h"
+#include <tf/transform_broadcaster.h>
 
 /**
  * This tutorial demonstrates simple receipt of messages over the ROS system.
@@ -8,8 +9,15 @@
 void chatterCallback(const geometry_msgs::TransformStamped& msg)
 {
 	//ROS_INFO("I heard: [%s]", msg->data.c_str());
-	//printf("Msg Received\n");
-	printf("I heard: [%s]\n", msg.header.frame_id.c_str());
+	//printf("I heard: [%s]\n", msg.header.frame_id.c_str());
+	printf("Location: %f, %f, %f\n", msg.transform.translation.x,
+		msg.transform.translation.y, msg.transform.translation.z);
+	tf::Quaternion q(msg.transform.rotation.x, msg.transform.rotation.y, 
+		msg.transform.rotation.z, msg.transform.rotation.w);
+	tf::Matrix3x3 m(q);
+	double roll, pitch, yaw;
+	m.getRPY(roll, pitch, yaw);
+	printf("Roll: %f Pitch: %f Yaw: %f\n", roll, pitch, yaw);
 }
 
 int main(int argc, char **argv)

@@ -2,3 +2,6 @@
 *.*~
 build/
 devel/
+*.user
+*Qt*/
+serial/

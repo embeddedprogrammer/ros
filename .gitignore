@@ -5,3 +5,4 @@ devel/
 *.user
 *Qt*/
 serial/
+src/CMakeLists.txt

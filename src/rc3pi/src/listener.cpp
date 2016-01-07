@@ -3,10 +3,44 @@
 #include "geometry_msgs/TransformStamped.h"
 #include <tf/transform_broadcaster.h>
 
-/**
- * This tutorial demonstrates simple receipt of messages over the ROS system.
- */
-void chatterCallback(const geometry_msgs::TransformStamped& msg)
+//#include <stdio.h>
+//#include <sys/stat.h>
+//#include <sys/types.h>
+//#include <fcntl.h>
+//#include <stdlib.h>
+//#include <math.h>
+//#include <time.h>
+//#include <errno.h>
+
+#define MIN_MOTOR_REFRESH_TIME_MS 1000
+#define MOTOR_REFRESH_TIMER_ID 0
+
+//Utility functions
+double timerStartTime[10];
+
+double utility_getTime_ms()
+{
+	struct timeval tp;
+	gettimeofday(&tp, NULL);
+	return ((double) tp.tv_sec * 1e3 + (double) tp.tv_usec * 1e-3);
+}
+
+void utility_startTimer(int timerId)
+{
+	timerStartTime[timerId] = utility_getTime_ms();
+}
+
+double utility_getTimerTime_ms(int timerId)
+{
+	return (utility_getTime_ms() - timerStartTime[timerId]);
+}
+
+double utility_getTimerTime_s(int timerId)
+{
+	return (utility_getTime_ms() - timerStartTime[timerId]) / 1000;
+}
+
+void motorRefresh(const geometry_msgs::TransformStamped& msg)
 {
 	//ROS_INFO("I heard: [%s]", msg->data.c_str());
 	//printf("I heard: [%s]\n", msg.header.frame_id.c_str());
@@ -18,6 +52,18 @@ void chatterCallback(const geometry_msgs::TransformStamped& msg)
 	double roll, pitch, yaw;
 	m.getRPY(roll, pitch, yaw);
 	printf("Roll: %f Pitch: %f Yaw: %f\n", roll, pitch, yaw);
+}
+
+/**
+ * This tutorial demonstrates simple receipt of messages over the ROS system.
+ */
+void chatterCallback(const geometry_msgs::TransformStamped& msg)
+{
+	if(utility_getTimerTime_ms(MOTOR_REFRESH_TIMER_ID) >= MIN_MOTOR_REFRESH_TIME_MS)
+	{
+		motorRefresh(msg);
+		utility_startTimer(MOTOR_REFRESH_TIMER_ID);
+	}
 }
 
 int main(int argc, char **argv)
@@ -67,3 +113,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+

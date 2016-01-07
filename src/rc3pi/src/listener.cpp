@@ -2,15 +2,22 @@
 //#include "std_msgs/String.h"
 #include "geometry_msgs/TransformStamped.h"
 #include <tf/transform_broadcaster.h>
+#include <sys/time.h> // For gettimeofday
 
-//#include <stdio.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
-//#include <fcntl.h>
-//#include <stdlib.h>
-//#include <math.h>
-//#include <time.h>
-//#include <errno.h>
+//For serial library
+//#include <unistd.h>
+//#include <string>
+//#include <iostream>
+//#include <cstdio>
+#include "serial/serial.h"
+
+using std::string;
+using std::exception;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::vector;
+
 
 #define MIN_MOTOR_REFRESH_TIME_MS 1000
 #define MOTOR_REFRESH_TIMER_ID 0
@@ -66,8 +73,29 @@ void chatterCallback(const geometry_msgs::TransformStamped& msg)
 	}
 }
 
+// Open serial port
+serial::Serial my_serial("/dev/ttyUSB0", 9600, serial::Timeout::simpleTimeout(1000));
+
+void sendCommand(int robotId, int leftMotorSpeed, int rightMotorSpeed)
+{
+	char cmd[4];
+	cmd[0] = robotId;
+	cmd[1] = 128 + leftMotorSpeed;
+	cmd[2] = 128 + rightMotorSpeed;
+	cmd[3] = '\n';
+	string cmdStr(cmd, cmd + 4);
+	my_serial.write(cmdStr);
+}
+
 int main(int argc, char **argv)
 {
+	sendCommand(0, -50, -50);
+
+
+
+
+
+
 	/**
 	 * The ros::init() function needs to see argc and argv so that it can perform
 	 * any ROS arguments and name remapping that were provided at the command line.

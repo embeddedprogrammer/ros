@@ -1,5 +1,9 @@
+#include <sys/time.h>      // For gettimeofday
+#include <string>
+#include <iostream>
+#include <cstdio>
+#include <unistd.h>
 #include "serial/serial.h"
-#include "utility.h"
 
 using std::string;
 using std::exception;
